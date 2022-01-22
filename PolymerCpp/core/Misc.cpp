@@ -2,15 +2,18 @@
 
 using namespace std;
 
-unsigned seed;
-std::minstd_rand randGenerator(1u);
+std::minstd_rand randGenerator{};
 std::uniform_real_distribution<double> randUniformReal(0.0,1.0);
 std::normal_distribution<double> randNormalReal(0.0,1.0);
 
-void seedRandom()
+void setSeed()
 {
-    seed = std::chrono::system_clock::now().time_since_epoch().count();
-    randGenerator.seed(seed);
+    randGenerator.seed(std::random_device{}());
+}
+
+void setSeed(unsigned long long seed)
+{
+  randGenerator.seed(seed);
 }
 
 void printRandom()

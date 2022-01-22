@@ -8,8 +8,9 @@ See the LICENSE.txt file for more details.
 
 import PolymerCppCore
 import numpy as np
+from random import getrandbits
 
-def getCppWLC(pathLength=1000.0, persisLength=1.0):
+def getCppWLC(pathLength=1000.0, persisLength=1.0, seed=getrandbits(64)):
     """Generate the trajectory of an infinitesimal wormlike chain.
 
     Parameters
@@ -38,16 +39,16 @@ def getCppWLC(pathLength=1000.0, persisLength=1.0):
     (101, 3)
     
     """
-    rawChain = np.array(PolymerCppCore.getWLC(pathLength, persisLength))
+    rawChain = np.array(PolymerCppCore.getWLC(pathLength, persisLength, seed))
 
     while np.isnan(rawChain).any():
-        rawChain = np.array(PolymerCppCore.getWLC(pathLength, persisLength))
+        rawChain = np.array(PolymerCppCore.getWLC(pathLength, persisLength, seed))
 
     rawChain = np.reshape(rawChain, (-1, 3))
 
     return rawChain
 
-def getCppWLC2D(pathLength=1000, persisLength=1.0):
+def getCppWLC2D(pathLength=1000, persisLength=1.0, seed=getrandbits(64)):
     """Create a infinitesimally-thin wormlike chain in two dimensions.
 
     Parameters
@@ -74,18 +75,19 @@ def getCppWLC2D(pathLength=1000, persisLength=1.0):
     
     """
     rawChain = np.array(PolymerCppCore.getWLC2D(
-        pathLength, persisLength))
+        pathLength, persisLength, seed))
 
     while np.isnan(rawChain).any():
         rawChain = np.array(PolymerCppCore.getWLC2D(
             pathLength,
-            persisLength))
+            persisLength,
+            seed))
 
     rawChain = np.reshape(rawChain, (-1, 2))
 
     return rawChain
 
-def getCppSAWLC(pathLength=1000.0, persisLength=1.0, linkDiameter=0.5):
+def getCppSAWLC(pathLength=1000.0, persisLength=1.0, linkDiameter=0.5, seed=getrandbits(64)):
     """Generate a trajectory of a self-avoiding wormlike chain.
 
     Parameters
@@ -122,13 +124,15 @@ def getCppSAWLC(pathLength=1000.0, persisLength=1.0, linkDiameter=0.5):
 
     rawChain = np.array(PolymerCppCore.getSAWLC(pathLengthCpp,
                                                 persisLength,
-                                                linkDiameter))
+                                                linkDiameter,
+                                                seed))
 
     while np.isnan(rawChain).any():
         # TODO: Fix NaN's in C++ code
         rawChain = np.array(PolymerCppCore.getSAWLC(pathLengthCpp,
                                                     persisLength,
-                                                    linkDiameter))
+                                                    linkDiameter,
+                                                    seed))
     
     rawChain = np.reshape(rawChain, (-1,3))[0:pathLength + 1, :]
 

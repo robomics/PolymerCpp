@@ -44,3 +44,6 @@ docs/_build/
 
 # Netbeans
 nbproject/
+
+.idea
+venv

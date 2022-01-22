@@ -23,19 +23,20 @@ extern std::normal_distribution<double> randNormalReal;
 
 static PyObject * getWLCrgs(PyObject *self, PyObject *args)
 {
-	seedRandom();
-
 	//Parse input into parameters
         int    numPaths;
 	double pathLength;
 	double persisLength;
-    if (!PyArg_ParseTuple(args, "idd", &pathLength, &persisLength))
+        unsigned long long seed;
+    if (!PyArg_ParseTuple(args, "iddK", &pathLength, &persisLength, &seed))
         return NULL;
 
+    setSeed(seed);
+
     Eigen::Vector3d startDir(1.0,0.0,0.0);
-    
+
     // Initialize the chain
-    WLC chain = WLC(pathLength, 
+    WLC chain = WLC(pathLength,
                     persisLength,
                     &startDir);
 
@@ -49,23 +50,24 @@ static PyObject * getWLCrgs(PyObject *self, PyObject *args)
     	results.push_back(chain.computeRg());
     }
 
-    
+
     return vectorToTuple_Float(results);
 }
 
 static PyObject * getWLC(PyObject *self, PyObject *args)
 {
-	seedRandom();
-
 	//Parse input
 	double pathLength;
 	double persisLength;
-    if (!PyArg_ParseTuple(args, "dd", &pathLength, &persisLength))
+        unsigned long long seed;
+    if (!PyArg_ParseTuple(args, "ddK", &pathLength, &persisLength, &seed))
         return NULL;
 
+    setSeed(seed);
+
     Eigen::Vector3d startDir(1.0,0.0,0.0);
-    
-    WLC chain = WLC(pathLength, 
+
+    WLC chain = WLC(pathLength,
                     persisLength,
                     &startDir);
     chain.makePath(pathLength);
@@ -89,21 +91,22 @@ static PyObject * getWLC(PyObject *self, PyObject *args)
 
 static PyObject * getWLC2D(PyObject *self, PyObject *args)
 {
-    seedRandom();
-    
     int pathLength;
     double persisLength;
-    if (!PyArg_ParseTuple(args, "id", &pathLength, &persisLength)) {
+    unsigned long long seed;
+  if (!PyArg_ParseTuple(args, "idK", &pathLength, &persisLength, &seed)) {
         return NULL;
     }
-    
+
+    setSeed(seed);
+
     Eigen::Vector2d startDir(1.0, 0.0);
-    
+
     WLC2D chain = WLC2D(pathLength,
                         persisLength,
                         &startDir);
     chain.makePath(pathLength);
-    
+
     // Store all 2D vector coordinates in a single 1D vector
     /* Format:
      * (1x, 1y, 2x, 2y, 3x, 3y, ...)
@@ -118,25 +121,28 @@ static PyObject * getWLC2D(PyObject *self, PyObject *args)
     }
     // Let Python deal with reshaping the array back.
     return vectorToTuple_Float(chainPoints);
-    
+
 }
 
 static PyObject * getSAWLCrgs(PyObject *self, PyObject *args)
 // Same as getWLCrgs, just added another input parameter - linkDiameter, and
 // changed the type of chain from WLC to SAWLC.
 {
-	seedRandom();
 	//Parse input
         int numPaths;
 	double pathLength;
 	double persisLength;
 	double linkDiameter;
-    if (!PyArg_ParseTuple(args, "iddd", &pathLength, &persisLength, &linkDiameter))
+        unsigned long long seed;
+    if (!PyArg_ParseTuple(args, "idddK", &pathLength, &persisLength, &linkDiameter, &seed))
         return NULL;
 
+    setSeed(seed);
+    printf("seed=%llu\n", seed);
+
     Eigen::Vector3d startDir(1.0,0.0,0.0);
-    
-    SAWLC chain = SAWLC(pathLength, 
+
+    SAWLC chain = SAWLC(pathLength,
                         persisLength,
                         linkDiameter,
                         &startDir);
@@ -148,7 +154,7 @@ static PyObject * getSAWLCrgs(PyObject *self, PyObject *args)
     };
 
     return vectorToTuple_Float(results);
-    
+
 }
 
 
@@ -156,17 +162,19 @@ static PyObject * getSAWLC(PyObject *self, PyObject *args)
 // Same as getWLC, just added another input parameter - linkDiameter, and
 // changed the type of chain from WLC to SAWLC.
 {
-	seedRandom();
 	//Parse input
 	double pathLength;
 	double persisLength;
 	double linkDiameter;
-    if (!PyArg_ParseTuple(args, "ddd", &pathLength, &persisLength, &linkDiameter))
+        unsigned long long seed;
+    if (!PyArg_ParseTuple(args, "dddK", &pathLength, &persisLength, &linkDiameter, &seed))
         return NULL;
 
+    setSeed(seed);
+
     Eigen::Vector3d startDir(1.0,0.0,0.0);
-    
-    SAWLC chain = SAWLC(pathLength, 
+
+    SAWLC chain = SAWLC(pathLength,
                         persisLength,
                         linkDiameter,
                         &startDir);
@@ -182,16 +190,16 @@ static PyObject * getSAWLC(PyObject *self, PyObject *args)
     }
 
     return vectorToTuple_Float(chainPoints);
-} 
+}
 
-static PyMethodDef PolymerCppCoreMethods[] = 
+static PyMethodDef PolymerCppCoreMethods[] =
 {
     {"getWLCrgs",  getWLCrgs, METH_VARARGS,
      "Generate an infinitesimally-thin wormlike chain in three dimensions."},
     {"getWLC",  getWLC, METH_VARARGS,
      "Get the whole chain of certain parameters."},
     {"getWLC2D", getWLC2D, METH_VARARGS,
-     "Generate an infinitesimally-thin wormlike chain in two dimensions."}, 
+     "Generate an infinitesimally-thin wormlike chain in two dimensions."},
     {"getSAWLCrgs",  getSAWLCrgs, METH_VARARGS,
      "Get multiple SAWLC radii of gyration of certain parameters."},
     {"getSAWLC",  getSAWLC, METH_VARARGS,

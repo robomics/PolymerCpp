@@ -18,7 +18,7 @@ using namespace std;
 
 
 
-void seedRandom();
+void setSeed(unsigned long long seed);
 void printRandom();
 /* Miscellaneous functions to test random number generation. */
 
